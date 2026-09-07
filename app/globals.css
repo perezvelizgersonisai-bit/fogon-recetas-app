@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+:root {
+  --color-cream: #FBF6EE;
+  --color-cream-deep: #F1E7D5;
+  --color-ink: #2B2320;
+  --color-terracotta: #B5502F;
+  --color-terracotta-deep: #8E3D22;
+  --color-sage: #6B7A5E;
+  --color-mustard: #D69A3E;
+
+  --font-display: "Fraunces", serif;
+  --font-body: "Inter", sans-serif;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+::selection {
+  background-color: var(--color-mustard);
+  color: var(--color-ink);
+}
