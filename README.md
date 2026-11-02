@@ -1,6 +1,20 @@
 # 🍲 Fogón — Recetario digital con Next.js y Supabase
 
-Landing page funcional de un recetario de cocina casera, construida con **Next.js 16 (App Router)** y **Supabase** como base de datos y backend serverless. Proyecto desarrollado para la actividad evaluada *"Dominio del App Router y Gestión de Datos: Construcción de Rutas Dinámicas y Persistencia con servicio serverless"* (KODIGO).
+[![AWS Amplify](https://img.shields.io/badge/AWS_Amplify-Deployed-22c55e?logo=amazon-aws&logoColor=white)](https://main.d3r8u12v9bop7a.amplifyapp.com)
+[![Next.js](https://img.shields.io/badge/Next.js-16_App_Router-black?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database_%26_Auth-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+
+Landing page funcional de un recetario de cocina casera, construida con **Next.js 16 (App Router)** y **Supabase** como base de datos y backend serverless. Proyecto desplegado en producción en **AWS Amplify**.
+
+---
+
+## 🌐 Enlaces Oficiales del Proyecto
+
+- 🚀 **Aplicación Desplegada en AWS Amplify**: [https://main.d3r8u12v9bop7a.amplifyapp.com](https://main.d3r8u12v9bop7a.amplifyapp.com)
+- 📦 **Repositorio Público en GitHub**: [https://github.com/perezvelizgersonisai-bit/fogon-recetas-app](https://github.com/perezvelizgersonisai-bit/fogon-recetas-app)
+- ☁️ **Servicio de Hosting**: AWS Amplify (Next.js SSR / App Router)
+
+---
 
 ## 📌 Descripción del proyecto
 
@@ -80,49 +94,61 @@ npm run build
 npm start
 ```
 
-## 🌐 Despliegue en Vercel
+## ☁️ Guía Paso a Paso de Despliegue en AWS Amplify
 
-1. Sube este repositorio a GitHub.
-2. Importa el repositorio en [vercel.com](https://vercel.com/).
-3. En **Environment Variables**, agrega:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-4. Despliega. Vercel detecta Next.js automáticamente.
+Para cumplir con el ciclo de vida de producción y hacer accesible la aplicación a través de Internet:
 
-## 📂 Estructura del proyecto
+### 1. Preparar el Repositorio
+- El proyecto Next.js está alojado en el repositorio público de GitHub: `perezvelizgersonisai-bit/fogon-recetas-app`.
+- Se incluye el archivo `.env.example` documentando las variables requeridas (`NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`).
+- Se verificó que el proyecto compila correctamente de forma local con `npm run build`.
 
+### 2. Conectar AWS Amplify con GitHub
+1. Ingresar a la consola de [AWS Amplify](https://console.aws.amazon.com/amplify).
+2. Seleccionar **Deploy an app** y elegir **GitHub** como proveedor de código fuente.
+3. Autorizar a AWS Amplify para acceder a los repositorios y seleccionar `fogon-recetas-app` en la rama `main`.
+
+### 3. Configuración del Build (`amplify.yml`)
+Amplify detecta automáticamente el framework **Next.js - SSR (App Router)**. El archivo de construcción incluido en el repositorio es:
+
+```yaml
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci --cache .npm --prefer-offline
+    build:
+      commands:
+        - env | grep -e NEXT_PUBLIC_ >> .env.production
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .next/cache/**/*
+      - .npm/**/*
 ```
-recetas-app/
-├── app/
-│   ├── page.tsx                    # Página de inicio (lista categorías y recetas)
-│   ├── layout.tsx                  # Layout raíz, tipografía y metadata
-│   ├── globals.css                 # Paleta de colores y estilos base
-│   ├── error.tsx                   # Manejo de errores global
-│   ├── recetas/[slug]/
-│   │   ├── page.tsx                # Ruta dinámica: detalle de una receta
-│   │   ├── loading.tsx             # Loading state
-│   │   └── not-found.tsx           # 404 personalizado
-│   └── categorias/[slug]/
-│       ├── page.tsx                # Ruta dinámica: recetas por categoría
-│       ├── loading.tsx             # Loading state
-│       └── not-found.tsx           # 404 personalizado
-├── lib/
-│   ├── supabase.ts                 # Cliente de Supabase
-│   ├── data.ts                     # Funciones de acceso a datos (lectura)
-│   └── types.ts                    # Tipos TypeScript de las tablas
-├── supabase/
-│   └── schema.sql                  # Script SQL: tablas, RLS y datos de ejemplo
-└── .env.local.example              # Plantilla de variables de entorno
-```
 
-## 🗄️ Estructura de datos en Supabase
+### 4. Configurar Variables de Entorno en Producción
+En la consola de AWS Amplify, en el apartado **App settings > Environment variables**, se agregan las variables de conexión a Supabase:
+- `NEXT_PUBLIC_SUPABASE_URL`: `https://olhrhxqhtszcmsmqcspe.supabase.co`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: `sb_publishable_UrCXER1JynNz8NjAoe4jTA_E7JoPBRN`
 
-**Tabla `categorias`**: `id`, `nombre`, `slug`, `descripcion`, `icono`
+> 🔒 *Nota de seguridad:* El archivo `.env.local` nunca se sube al repositorio; las credenciales se administran de forma segura y centralizada en la consola de AWS Amplify.
 
-**Tabla `recetas`**: `id`, `slug`, `titulo`, `descripcion`, `categoria_slug` (FK a `categorias.slug`), `tiempo_preparacion`, `dificultad`, `porciones`, `ingredientes` (array), `pasos` (array), `imagen_emoji`
+### 5. Despliegue y Verificación
+- Al hacer clic en **Save and Deploy**, Amplify ejecuta el pipeline automático: **Provision** &rarr; **Build** &rarr; **Deploy** &rarr; **Verify**.
+- Una vez finalizado el estado cambia a **Deployed (Compilación exitosa)**.
+- La aplicación queda publicada y accesible globalmente en: **https://main.d3r8u12v9bop7a.amplifyapp.com**.
 
-Ambas tablas tienen **RLS habilitado** con una política de lectura pública (`select` con `using (true)`) y ninguna política de escritura para el rol anónimo, por lo que los datos solo pueden modificarse desde el panel de Supabase o con la service role key.
+---
 
 ## 👤 Autor
 
-Proyecto desarrollado como actividad evaluada del curso de KODIGO — Desarrollo Web Moderno con Next.js y Arquitecturas Serverless.
+- **Estudiante**: Herson Isai Perez Veliz
+- **Programa**: Bootcamp Full Stack Junior — Kodigo
+- **Módulo**: Despliegue de Aplicaciones en AWS
+- **Repositorio**: [https://github.com/perezvelizgersonisai-bit/fogon-recetas-app](https://github.com/perezvelizgersonisai-bit/fogon-recetas-app)
